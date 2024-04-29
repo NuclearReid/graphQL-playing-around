@@ -19,13 +19,34 @@ const userSchema = new Schema({
         required: true,
         minlength: 5,
     },
+    // this should be in the user schema but I have not done that yet
+    // balance: {
+    //     type: Number,
+    // },
+    expense: [
+      {
+        balance:{
+            type: Number,
+        },
+        // nest an array into each of these with the budget and how much spent
+        eatingOut: {
+            type: Number,
+        }
+      }
+    ],
+
+
 });
 
 userSchema.pre('save', async function (next) {
     if (this.isNew || this.isModified('password')) {
         this.password = await bcrypt.hash(this.password, 10);
     }
+    // initializes and sets the expenses to 0 when a new User is created.
+    // balace will be changed when the mutation 'startingBalance' is called
+    this.expense = [{ balance: 0, eatingOut: 0 }];
     next();
+
 });
 
 userSchema.methods.isCorrectPassword = async function (password){
